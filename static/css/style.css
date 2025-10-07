@@ -1,0 +1,117 @@
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.card {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    margin-bottom: 20px;
+}
+
+.card-header {
+    border-bottom: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.challenge-card {
+    transition: transform 0.2s ease-in-out;
+    height: 100%;
+}
+
+.challenge-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+}
+
+.alert {
+    border: none;
+    border-radius: 8px;
+}
+
+.table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+}
+
+/* Leaderboard specific styles */
+.table-primary {
+    background-color: #e3f2fd !important;
+}
+
+.badge {
+    font-size: 0.7em;
+}
+
+/* Challenge attempt progress */
+.progress {
+    height: 8px;
+    margin-top: 5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+}
+
+/* Custom colors for categories */
+.category-web { border-left: 4px solid #dc3545; }
+.category-crypto { border-left: 4px solid #198754; }
+.category-forensics { border-left: 4px solid #0dcaf0; }
+.category-reversing { border-left: 4px solid #ffc107; }
+.category-pwn { border-left: 4px solid #6f42c1; }
+
+/* Animation for leaderboard updates */
+@keyframes highlight {
+    0% { background-color: #d4edda; }
+    100% { background-color: transparent; }
+}
+
+.leaderboard-update {
+    animation: highlight 2s ease-in-out;
+}
+
+/* Add to existing style.css file */
+
+/* Loading spinner styles */
+.spinner-border-sm {
+    width: 1rem;
+    height: 1rem;
+}
+
+/* Challenge card animations */
+.challenge-card {
+    transition: all 0.3s ease;
+}
+
+.challenge-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Form focus styles */
+.form-control:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Alert animations */
+.alert {
+    transition: all 0.3s ease;
+}

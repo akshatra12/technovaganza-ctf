@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block title %}{{ challenge.name }} - CTF Platform{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h4 class="mb-0">{{ challenge.name }}</h4>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>Category:</strong> {{ challenge.category }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Base Points:</strong> {{ challenge.points }}
+                    </div>
+                </div>
+
+                <!-- Points Information -->
+                <div class="alert alert-warning">
+                    <strong>🎯 Points System:</strong><br>
+                    • Already solved by: <strong>{{ solved_count }} teams</strong><br>
+                    • Your potential points: <strong>{{ potential_points }}</strong><br>
+                    <small>
+                        {% if solved_count == 0 %}
+                        🥇 Be the first solver for {{ challenge.points }} points!
+                        {% elif solved_count == 1 %}
+                        🥈 Second solver gets {{ (challenge.points * 0.9)|int }} points
+                        {% elif solved_count == 2 %}
+                        🥉 Third solver gets {{ (challenge.points * 0.8)|int }} points
+                        {% else %}
+                        🏅 Next solver gets {{ max((challenge.points * 0.5)|int, 50) }} points
+                        {% endif %}
+                    </small>
+                </div>
+
+                <div class="mb-3">
+                    <strong>Description:</strong>
+                    <div class="border p-3 mt-2 bg-light">
+                        {{ challenge.description | safe }}
+                    </div>
+                </div>
+
+                {% if challenge.file_path %}
+                <div class="mb-3">
+                    <strong>Challenge Files:</strong>
+                    <div class="mt-2">
+                        <a href="{{ url_for('download_file', challenge_id=challenge.id) }}" 
+                           class="btn btn-outline-success btn-sm">
+                            📁 Download Challenge Files
+                        </a>
+                    </div>
+                </div>
+                {% endif %}
+
+                <div class="mb-3">
+                    <strong>Your Attempts:</strong> 
+                    <span class="badge {% if attempt_count >= 15 %}bg-danger{% elif attempt_count >= 10 %}bg-warning{% else %}bg-secondary{% endif %}">
+                        {{ attempt_count }}/20
+                    </span>
+                    {% if remaining_attempts <= 5 %}
+                    <div class="alert alert-warning mt-2">
+                        ⚠️ Warning: Only {{ remaining_attempts }} attempts remaining!
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <strong>Submit Flag:</strong>
+                    <form id="flag-form" class="mt-2">
+                        <div class="input-group">
+                            <input type="text" class="form-control" id="flag-input" 
+                                   placeholder="Enter flag (e.g., web_basic_2024)" required>
+                            <button type="submit" class="btn btn-primary">Submit Flag</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="result-message" class="mt-3"></div>
+            </div>
+        </div>
+
+        <div class="text-center mt-3">
+            <a href="/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.getElementById('flag-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const flag = document.getElementById('flag-input').value;
+        const resultDiv = document.getElementById('result-message');
+        
+        // Show loading state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+        submitBtn.disabled = true;
+        
+        fetch(`/submit_flag/{{ challenge.id }}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: `flag=${encodeURIComponent(flag)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Reset button state
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            
+            if (data.success) {
+                resultDiv.innerHTML = `<div class="alert alert-success">${data.message}</div>`;
+                document.getElementById('flag-input').value = '';
+                
+                // Show success message and redirect after delay
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 3000);
+            } else {
+                resultDiv.innerHTML = `<div class="alert alert-danger">${data.message}</div>`;
+                
+                // Refresh page if banned or attempts exhausted
+                if (data.message.includes('Banned') || data.message.includes('attempts')) {
+                    setTimeout(() => {
+                        window.location.href = '/dashboard';
+                    }, 2000);
+                }
+            }
+        })
+        .catch(error => {
+            // Reset button state
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+            
+            resultDiv.innerHTML = `<div class="alert alert-danger">Error submitting flag. Please try again.</div>`;
+        });
+    });
+
+    // Focus on flag input when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('flag-input').focus();
+    });
+</script>
+{% endblock %}

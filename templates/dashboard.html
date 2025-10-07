@@ -1,0 +1,307 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - CTF Platform{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Leaderboard Section -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Live Leaderboard</h5>
+                <small class="opacity-75">Real-time updates without page reload</small>
+            </div>
+            <div class="card-body">
+                <div id="leaderboard-container">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Team</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body">
+                            {% for entry in leaderboard %}
+                            <tr {% if entry.teamname == current_user.teamname %}class="table-primary"{% endif %}>
+                                <td>{{ loop.index }}</td>
+                                <td>
+                                    {{ entry.teamname }}
+                                    {% if entry.teamname == current_user.teamname %}
+                                    <span class="badge bg-primary">You</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ entry.score }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Points System Info -->
+        <div class="card mt-3">
+            <div class="card-header bg-info text-white">
+                <h6 class="mb-0">🏆 Points System</h6>
+            </div>
+            <div class="card-body">
+                <small>
+                    <strong>Solving Order Rewards:</strong><br>
+                    • 1st Solver: 100% points<br>
+                    • 2nd Solver: 90% points<br>
+                    • 3rd Solver: 80% points<br>
+                    • 4th+ Solver: 50% points<br>
+                    <em>Solve early for more points!</em>
+                </small>
+            </div>
+        </div>
+
+        <!-- Connection Status -->
+        <div class="card mt-3">
+            <div class="card-header bg-dark text-white">
+                <h6 class="mb-0">🔗 Connection Status</h6>
+            </div>
+            <div class="card-body">
+                <small>
+                    <span id="connection-status" class="text-success">● Connected (Live Updates)</span>
+                    <br>
+                    <em>Leaderboard updates automatically</em>
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Challenges Section -->
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Challenges</h5>
+                <small>
+                    <span class="badge bg-success">Available</span>
+                    <span class="badge bg-primary">Solved by You</span>
+                    <span class="badge bg-warning">Many Attempts</span>
+                </small>
+            </div>
+            <div class="card-body">
+                <div class="row" id="challenges-container">
+                    {% for challenge in challenges %}
+                    <div class="col-md-6 mb-3">
+                        <div class="card challenge-card 
+                            {% if challenge.id in solved_challenge_ids %}border-primary bg-light
+                            {% else %}border-success
+                            {% endif %}">
+                            <div class="card-body">
+                                <h6 class="card-title">{{ challenge.name }}</h6>
+                                <p class="card-text">
+                                    <small class="text-muted">Category: {{ challenge.category }}</small><br>
+                                    <small class="text-muted">Base Points: {{ challenge.points }}</small><br>
+                                    <small class="text-muted">
+                                        Solved by: <span id="solved-count-{{ challenge.id }}">{{ challenge_solve_info[challenge.id].solved_count }}</span> teams
+                                    </small>
+                                </p>
+                                
+                                {% if challenge.id in solved_challenge_ids %}
+                                    {% set user_submission = namespace(points=0) %}
+                                    {% for submission in current_user.submissions %}
+                                        {% if submission.challenge_id == challenge.id and submission.is_correct %}
+                                            {% set user_submission.points = submission.points_earned %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    <div class="alert alert-success py-1 mb-2">
+                                        <small>✅ Solved - {{ user_submission.points }} points earned</small>
+                                    </div>
+                                    <a href="{{ url_for('view_challenge', challenge_id=challenge.id) }}" 
+                                       class="btn btn-outline-primary btn-sm">
+                                        View Solution
+                                    </a>
+                                {% else %}
+                                    {% set user_attempt = namespace(count=0) %}
+                                    {% for submission in current_user.submissions %}
+                                        {% if submission.challenge_id == challenge.id %}
+                                            {% set user_attempt.count = submission.attempt_count %}
+                                        {% endif %}
+                                    {% endfor %}
+                                    
+                                    {% if user_attempt.count >= 15 %}
+                                        <div class="alert alert-danger py-1 mb-2">
+                                            <small>⚠️ {{ 20 - user_attempt.count }} attempts left</small>
+                                        </div>
+                                    {% elif user_attempt.count >= 10 %}
+                                        <div class="alert alert-warning py-1 mb-2">
+                                            <small>⚠️ {{ 20 - user_attempt.count }} attempts left</small>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <!-- Show potential points based on current solve count -->
+                                    {% set current_solvers = challenge_solve_info[challenge.id].solved_count %}
+                                    {% set potential_points = namespace(value=challenge.points) %}
+                                    {% if current_solvers == 0 %}
+                                        {% set potential_points.value = challenge.points %}
+                                    {% elif current_solvers == 1 %}
+                                        {% set potential_points.value = (challenge.points * 0.9)|int %}
+                                    {% elif current_solvers == 2 %}
+                                        {% set potential_points.value = (challenge.points * 0.8)|int %}
+                                    {% else %}
+                                        {% set potential_points.value = max((challenge.points * 0.5)|int, 50) %}
+                                    {% endif %}
+                                    
+                                    <div class="alert alert-info py-1 mb-2">
+                                        <small>🎯 Potential: <span id="potential-points-{{ challenge.id }}">{{ potential_points.value }}</span> points</small>
+                                    </div>
+                                    
+                                    <a href="{{ url_for('view_challenge', challenge_id=challenge.id) }}" 
+                                       class="btn btn-outline-success btn-sm">
+                                        Solve Challenge
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var socket = io();
+    
+    // Connection status
+    socket.on('connect', function() {
+        document.getElementById('connection-status').innerHTML = '● Connected (Live Updates)';
+        document.getElementById('connection-status').className = 'text-success';
+    });
+    
+    socket.on('disconnect', function() {
+        document.getElementById('connection-status').innerHTML = '● Disconnected';
+        document.getElementById('connection-status').className = 'text-danger';
+    });
+
+    // Handle leaderboard updates
+    socket.on('leaderboard_update', function(data) {
+        console.log('Leaderboard update received');
+        
+        // Fetch updated leaderboard data via AJAX
+        fetch('/api/leaderboard')
+            .then(response => response.json())
+            .then(leaderboardData => {
+                updateLeaderboard(leaderboardData);
+            })
+            .catch(error => {
+                console.error('Error fetching leaderboard:', error);
+            });
+    });
+
+    // Handle challenge solved events
+    socket.on('challenge_solved', function(data) {
+        console.log('Challenge solved:', data);
+        
+        // Show notification
+        showNotification(`🎉 Challenge "${data.challenge_name}" solved by ${data.solver_team}!`, 'success');
+        
+        // Update solved count for that challenge
+        const solvedCountElement = document.getElementById(`solved-count-${data.challenge_id}`);
+        if (solvedCountElement) {
+            const currentCount = parseInt(solvedCountElement.textContent);
+            solvedCountElement.textContent = currentCount + 1;
+        }
+        
+        // Update potential points for that challenge
+        updatePotentialPoints(data.challenge_id, data.challenge_name);
+    });
+
+    function updateLeaderboard(leaderboardData) {
+        const tbody = document.getElementById('leaderboard-body');
+        if (!tbody) return;
+        
+        tbody.innerHTML = '';
+        
+        leaderboardData.forEach((entry, index) => {
+            const row = document.createElement('tr');
+            const isCurrentUser = entry.teamname === "{{ current_user.teamname }}";
+            
+            if (isCurrentUser) {
+                row.className = 'table-primary';
+            }
+            
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>
+                    ${entry.teamname}
+                    ${isCurrentUser ? '<span class="badge bg-primary">You</span>' : ''}
+                </td>
+                <td>${entry.score}</td>
+            `;
+            
+            // Add highlight animation for updates
+            row.style.animation = 'highlight 2s ease-in-out';
+            tbody.appendChild(row);
+        });
+    }
+
+    function updatePotentialPoints(challengeId, challengeName) {
+        // For now, we'll just increment the solved count
+        // In a real implementation, we'd fetch the updated points from the server
+        const solvedCountElement = document.getElementById(`solved-count-${challengeId}`);
+        if (solvedCountElement) {
+            const currentCount = parseInt(solvedCountElement.textContent);
+            solvedCountElement.textContent = currentCount + 1;
+            
+            // Update potential points display
+            const potentialPointsElement = document.getElementById(`potential-points-${challengeId}`);
+            if (potentialPointsElement) {
+                // This is a simplified calculation - in reality we should get this from the server
+                let newPoints = 0;
+                if (currentCount + 1 === 1) {
+                    newPoints = "90%"; // Second solver gets 90%
+                } else if (currentCount + 1 === 2) {
+                    newPoints = "80%"; // Third solver gets 80%
+                } else if (currentCount + 1 >= 3) {
+                    newPoints = "50%"; // Fourth+ solver gets 50%
+                }
+                
+                potentialPointsElement.textContent = newPoints;
+            }
+        }
+    }
+
+    function showNotification(message, type) {
+        // Create notification element
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show`;
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        // Add to page
+        const container = document.querySelector('.container');
+        container.insertBefore(notification, container.firstChild);
+        
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+    }
+
+    // Request initial leaderboard data
+    socket.emit('request_leaderboard');
+    
+    // No auto-refresh interval - we rely on socket events
+    
+</script>
+
+<style>
+    @keyframes highlight {
+        0% { background-color: #d4edda; }
+        100% { background-color: transparent; }
+    }
+</style>
+{% endblock %}

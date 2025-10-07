@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Account Banned - CTF Platform{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h4 class="mb-0">🚫 Account Banned</h4>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-4">
+                    <i class="fas fa-ban fa-5x text-danger"></i>
+                </div>
+                <h5 class="text-danger">Your account has been temporarily banned</h5>
+                <p class="mb-3">
+                    You exceeded the maximum number of attempts for a challenge. 
+                    This is to maintain fair play for all participants.
+                </p>
+                <div class="alert alert-warning">
+                    <strong>Reason:</strong> Too many incorrect flag submissions
+                </div>
+                <p>
+                    Please contact the event organizers if you believe this is a mistake.
+                </p>
+                <a href="/logout" class="btn btn-primary">Logout</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

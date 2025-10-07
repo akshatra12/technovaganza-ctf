@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Leaderboard - CTF Platform{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h4 class="mb-0 text-white">Live Leaderboard</h4>
+                <small class="text-white opacity-75">Updates automatically without page reload</small>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Team Name</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body">
+                            {% for entry in leaderboard %}
+                            <tr {% if entry.teamname == current_user.teamname %}class="table-primary"{% endif %}>
+                                <td>{{ loop.index }}</td>
+                                <td>
+                                    {{ entry.teamname }}
+                                    {% if entry.teamname == current_user.teamname %}
+                                    <span class="badge bg-primary">You</span>
+                                    {% endif %}
+                                </td>
+                                <td><strong>{{ entry.score }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="text-center mt-3">
+            <a href="/dashboard" class="btn btn-secondary">Back to Dashboard</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    var socket = io();
+    
+    socket.on('leaderboard_update', function(data) {
+        console.log('Updating leaderboard...');
+        
+        // Fetch updated leaderboard via AJAX
+        fetch('/api/leaderboard')
+            .then(response => response.json())
+            .then(leaderboardData => {
+                updateLeaderboard(leaderboardData);
+            })
+            .catch(error => {
+                console.error('Error fetching leaderboard:', error);
+            });
+    });
+
+    function updateLeaderboard(leaderboardData) {
+        const tbody = document.getElementById('leaderboard-body');
+        tbody.innerHTML = '';
+        
+        leaderboardData.forEach((entry, index) => {
+            const row = document.createElement('tr');
+            const isCurrentUser = entry.teamname === "{{ current_user.teamname }}";
+            
+            if (isCurrentUser) {
+                row.className = 'table-primary';
+            }
+            
+            row.innerHTML = `
+                <td>${index + 1}</td>
+                <td>
+                    ${entry.teamname}
+                    ${isCurrentUser ? '<span class="badge bg-primary">You</span>' : ''}
+                </td>
+                <td><strong>${entry.score}</strong></td>
+            `;
+            
+            tbody.appendChild(row);
+        });
+    }
+    
+    // No auto-refresh - we use socket events only
+</script>
+{% endblock %}
