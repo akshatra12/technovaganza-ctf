@@ -9,10 +9,10 @@ import os
 
 # Production configuration
 class Config:
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'ctf-platform-secret-key-2025')
+    SECRET_KEY = os.environ.get('SECRET_KEY', 'ctf-platform-secret-key-2024')
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
-    # Database configuration for Render
+    # Database configuration for Render - YEH IMPORTANT HAI
     if os.environ.get('DATABASE_URL'):
         SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL').replace('postgres://', 'postgresql://')
     else:
@@ -32,9 +32,11 @@ app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
 db.init_app(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
+
+# Use eventlet instead of gevent for Python 3.13 compatibility
 socketio = SocketIO(app, 
                    cors_allowed_origins="*", 
-                   async_mode='gevent',
+                   async_mode='eventlet',
                    logger=True,
                    engineio_logger=True)
 
@@ -71,6 +73,48 @@ def calculate_points(challenge_id, user_id):
     else:
         # Fourth+ solver - 50% points (minimum)
         return max(int(base_points * 0.5), 50)  # At least 50 points
+
+# Database initialization function - YEH NAYA ADD KARO
+def initialize_database():
+    with app.app_context():
+        try:
+            db.create_all()
+            print("✅ Database tables created successfully!")
+            
+            # Add sample challenges if none exist
+            if Challenge.query.count() == 0:
+                challenges = [
+                    Challenge(
+                        name="Web Exploitation 101",
+                        category="Web",
+                        description="Find the flag hidden in the website. Look for vulnerabilities in the input fields.",
+                        flag="web_basic_2024",
+                        points=100,
+                        file_path="challenges/files/rules.pdf"
+                    ),
+                    Challenge(
+                        name="Cryptography Challenge",
+                        category="Crypto",
+                        description="Decrypt the secret message: VGVzdCBmbGFn",
+                        flag="crypto_master_2024",
+                        points=150,
+                        file_path="challenges/files/rules.pdf"
+                    ),
+                    Challenge(
+                        name="Forensics Investigation",
+                        category="Forensics",
+                        description="Analyze the image file and find the hidden message.",
+                        flag="forensic_expert_2024",
+                        points=200,
+                        file_path="challenges/files/rules.pdf"
+                    )
+                ]
+                db.session.add_all(challenges)
+                db.session.commit()
+                print("✅ Sample challenges added!")
+                
+        except Exception as e:
+            print(f"❌ Database initialization error: {e}")
 
 @app.route('/')
 def index():
@@ -415,39 +459,10 @@ def handle_leaderboard_request():
     leaderboard_data = get_leaderboard_data()
     emit('leaderboard_data', {'leaderboard': leaderboard_data})
 
+# Initialize database when app starts
+initialize_database()
+
 if __name__ == '__main__':
-    with app.app_context():
-        db.create_all()
-        # Add sample challenges if none exist
-        if Challenge.query.count() == 0:
-            challenges = [
-                Challenge(
-                    name="Web Exploitation 101",
-                    category="Web",
-                    description="Find the flag hidden in the website. Look for vulnerabilities in the input fields.",
-                    flag="web_basic_2024",
-                    points=100,
-                    file_path="challenges/files/rules.pdf"
-                ),
-                Challenge(
-                    name="Cryptography Challenge",
-                    category="Crypto",
-                    description="Decrypt the secret message: VGVzdCBmbGFn",  # Base64 encoded "Test flag"
-                    flag="crypto_master_2024",
-                    points=150,
-                    file_path="challenges/files/rules.pdf"
-                ),
-                Challenge(
-                    name="Forensics Investigation",
-                    category="Forensics",
-                    description="Analyze the image file and find the hidden message.",
-                    flag="forensic_expert_2024",
-                    points=200,
-                    file_path="challenges/files/rules.pdf"
-                )
-            ]
-            db.session.add_all(challenges)
-            db.session.commit()
-        print("Database initialized successfully!")
-    
-    socketio.run(app, debug=True, host='0.0.0.0', port=5000)
+    # Production-ready server
+    port = int(os.environ.get('PORT', 5000))
+    socketio.run(app, host='0.0.0.0', port=port, debug=False)
