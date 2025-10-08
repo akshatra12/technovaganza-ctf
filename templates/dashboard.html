@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Dashboard - CTF Platform{% endblock %}
+{% block title %}Dashboard - Technovaganza CTF{% endblock %}
 
 {% block content %}
 <div class="row">
@@ -48,10 +48,10 @@
             <div class="card-body">
                 <small>
                     <strong>Solving Order Rewards:</strong><br>
-                    • 1st Solver: 100% points<br>
-                    • 2nd Solver: 90% points<br>
-                    • 3rd Solver: 80% points<br>
-                    • 4th+ Solver: 50% points<br>
+                    • 1st Solver: 100 points<br>
+                    • 2nd Solver: 90 points<br>
+                    • 3rd Solver: 80 points<br>
+                    • 4th+ Solver: 50 points<br>
                     <em>Solve early for more points!</em>
                 </small>
             </div>
@@ -95,7 +95,6 @@
                                 <h6 class="card-title">{{ challenge.name }}</h6>
                                 <p class="card-text">
                                     <small class="text-muted">Category: {{ challenge.category }}</small><br>
-                                    <small class="text-muted">Base Points: {{ challenge.points }}</small><br>
                                     <small class="text-muted">
                                         Solved by: <span id="solved-count-{{ challenge.id }}">{{ challenge_solve_info[challenge.id].solved_count }}</span> teams
                                     </small>
@@ -134,21 +133,8 @@
                                         </div>
                                     {% endif %}
                                     
-                                    <!-- Show potential points based on current solve count -->
-                                    {% set current_solvers = challenge_solve_info[challenge.id].solved_count %}
-                                    {% set potential_points = namespace(value=challenge.points) %}
-                                    {% if current_solvers == 0 %}
-                                        {% set potential_points.value = challenge.points %}
-                                    {% elif current_solvers == 1 %}
-                                        {% set potential_points.value = (challenge.points * 0.9)|int %}
-                                    {% elif current_solvers == 2 %}
-                                        {% set potential_points.value = (challenge.points * 0.8)|int %}
-                                    {% else %}
-                                        {% set potential_points.value = max((challenge.points * 0.5)|int, 50) %}
-                                    {% endif %}
-                                    
                                     <div class="alert alert-info py-1 mb-2">
-                                        <small>🎯 Potential: <span id="potential-points-{{ challenge.id }}">{{ potential_points.value }}</span> points</small>
+                                        <small>🎯 Click below to solve this challenge</small>
                                     </div>
                                     
                                     <a href="{{ url_for('view_challenge', challenge_id=challenge.id) }}" 
@@ -210,9 +196,6 @@
             const currentCount = parseInt(solvedCountElement.textContent);
             solvedCountElement.textContent = currentCount + 1;
         }
-        
-        // Update potential points for that challenge
-        updatePotentialPoints(data.challenge_id, data.challenge_name);
     });
 
     function updateLeaderboard(leaderboardData) {
@@ -238,36 +221,8 @@
                 <td>${entry.score}</td>
             `;
             
-            // Add highlight animation for updates
-            row.style.animation = 'highlight 2s ease-in-out';
             tbody.appendChild(row);
         });
-    }
-
-    function updatePotentialPoints(challengeId, challengeName) {
-        // For now, we'll just increment the solved count
-        // In a real implementation, we'd fetch the updated points from the server
-        const solvedCountElement = document.getElementById(`solved-count-${challengeId}`);
-        if (solvedCountElement) {
-            const currentCount = parseInt(solvedCountElement.textContent);
-            solvedCountElement.textContent = currentCount + 1;
-            
-            // Update potential points display
-            const potentialPointsElement = document.getElementById(`potential-points-${challengeId}`);
-            if (potentialPointsElement) {
-                // This is a simplified calculation - in reality we should get this from the server
-                let newPoints = 0;
-                if (currentCount + 1 === 1) {
-                    newPoints = "90%"; // Second solver gets 90%
-                } else if (currentCount + 1 === 2) {
-                    newPoints = "80%"; // Third solver gets 80%
-                } else if (currentCount + 1 >= 3) {
-                    newPoints = "50%"; // Fourth+ solver gets 50%
-                }
-                
-                potentialPointsElement.textContent = newPoints;
-            }
-        }
     }
 
     function showNotification(message, type) {
@@ -293,15 +248,15 @@
 
     // Request initial leaderboard data
     socket.emit('request_leaderboard');
-    
-    // No auto-refresh interval - we rely on socket events
-    
 </script>
 
 <style>
-    @keyframes highlight {
-        0% { background-color: #d4edda; }
-        100% { background-color: transparent; }
+    .challenge-card {
+        transition: transform 0.2s ease-in-out;
+    }
+    .challenge-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
 </style>
 {% endblock %}

@@ -1,0 +1,18 @@
+🔐 Caesar Cipher Challenge
+
+The great Julius Caesar used this cipher to protect his military messages.
+Can you decrypt his secret communication?
+
+Encrypted Message 1: 
+Whvwkhqdqgwdohv, wkh iluvw ohwwhu lq wkh doskdehw lv wkh nhb.
+
+Encrypted Message 2:
+Gecmger qc f ckkv, cpf dqvj ctg ykvj ku vjg swguvkqpu.
+
+Historical Hint: Caesar typically used a shift of 3, but his generals sometimes used different shifts.
+
+Technical Hint: 
+- Both messages use the same shift value
+- The shift is between 1 and 10
+
+

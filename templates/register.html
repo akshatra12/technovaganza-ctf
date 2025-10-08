@@ -6,41 +6,47 @@
 <div class="row justify-content-center">
     <div class="col-md-6">
         <div class="card">
-            <div class="card-header">
-                <h4 class="mb-0">Register Your Team</h4>
+            <div class="card-header bg-success text-white text-center">
+                <h3 class="mb-0">🚀 Register</h3>
+                <small>Create your team account to start competing</small>
             </div>
             <div class="card-body">
                 {% if error %}
-                    <div class="alert alert-danger">{{ error }}</div>
+                <div class="alert alert-danger">{{ error }}</div>
                 {% endif %}
-                
+
                 <form method="POST">
                     <div class="mb-3">
                         <label for="teamname" class="form-label">Team Name</label>
-                        <input type="text" class="form-control" id="teamname" name="teamname" required>
+                        <input type="text" class="form-control" id="teamname" name="teamname" required 
+                               placeholder="Enter your team name">
                     </div>
                     <div class="mb-3">
                         <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" name="username" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="password" class="form-label">Password</label>
-                        <input type="password" class="form-control" id="password" name="password" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="confirm_password" class="form-label">Confirm Password</label>
-                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+                        <input type="text" class="form-control" id="username" name="username" required 
+                               placeholder="Choose a username">
                     </div>
                     <div class="mb-3">
                         <label for="team_id" class="form-label">Team ID</label>
-                        <input type="text" class="form-control" id="team_id" name="team_id" required>
-                        <div class="form-text">Contact organizers for your Team ID</div>
+                        <input type="text" class="form-control" id="team_id" name="team_id" required 
+                               placeholder="Enter unique team ID">
+                        <div class="form-text">This will be your unique identifier</div>
                     </div>
-                    <button type="submit" class="btn btn-success w-100">Register</button>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required 
+                               placeholder="Create a strong password">
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirm_password" class="form-label">Confirm Password</label>
+                        <input type="password" class="form-control" id="confirm_password" name="confirm_password" required 
+                               placeholder="Confirm your password">
+                    </div>
+                    <button type="submit" class="btn btn-success w-100">Register Team</button>
                 </form>
-                
+
                 <div class="text-center mt-3">
-                    <a href="/login">Already have an account? Login here</a>
+                    <p>Already have an account? <a href="/login">Login here</a></p>
                 </div>
             </div>
         </div>

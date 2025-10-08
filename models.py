@@ -11,6 +11,7 @@ class User(UserMixin, db.Model):
     password = db.Column(db.String(200), nullable=False)
     team_id = db.Column(db.String(50), unique=True, nullable=False)
     is_banned = db.Column(db.Boolean, default=False)
+    is_admin = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     score = db.Column(db.Integer, default=0)
     

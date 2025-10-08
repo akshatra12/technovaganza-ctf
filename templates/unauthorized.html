@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Access Denied - CTF Platform{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-danger text-white text-center">
+                <h3 class="mb-0">🚫 Access Denied</h3>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-4">
+                    <h1>🔒</h1>
+                    <h4>Admin Access Required</h4>
+                </div>
+                <p class="text-muted">
+                    You do not have permission to access the admin panel.
+                    This incident has been logged for security monitoring.
+                </p>
+                <a href="/dashboard" class="btn btn-primary">Return to Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

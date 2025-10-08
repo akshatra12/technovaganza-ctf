@@ -1,0 +1,27 @@
+🔍 Memory Forensics Challenge
+
+Memory Dump Analysis - Suspicious Process Investigation
+
+I captured a memory dump from a compromised system. The attacker left a backdoor process running that contains a secret message in its memory.
+
+Hex Dump of Process Memory (partial):
+45 56 49 4c 5f 50 52 4f 43 45 53 53 5f 53 54 41
+52 54 00 54 00 68 00 65 00 5f 00 66 00 6c 00 61
+00 67 00 5f 00 69 00 73 00 5f 00 68 00 69 00 64
+00 64 00 65 00 6e 00 5f 00 69 00 6e 00 5f 00 6d
+00 65 00 6d 00 6f 00 72 00 79 00 5f 00 64 00 75
+00 6d 00 70 00 5f 00 61 00 6e 00 61 00 6c 00 79
+00 73 00 69 00 73 00 00 00 00 00 00 00 00 00 00
+
+Analysis Instructions:
+1. Identify the encoding used (look at the pattern of null bytes)
+2. Extract the meaningful text from the hex dump
+3. The flag is hidden within the recovered text
+
+Technical Notes:
+- The process name was "EVIL_PROCESS"
+- The secret message is in Unicode/UTF-16 encoding
+- Look for patterns between null bytes (00)
+- Convert hex to ASCII, ignoring null bytes
+
+Flag Format: Technovaganzactf{recovered_text}

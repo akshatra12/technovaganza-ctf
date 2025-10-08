@@ -1,0 +1,37 @@
+🕵️ OSINT Investigation Challenge
+
+Target: "Alex Chen" - Security Researcher
+
+Background:
+Alex Chen is a cybersecurity researcher who recently discovered a major vulnerability.
+He mentioned leaving "clues about his findings" in his digital footprint.
+
+Digital Presence to Investigate:
+
+1. Email: alex.chen@cybersec-research.com
+2. Twitter: @alexchen_sec (inactive since 2021)
+3. GitHub: github.com/alexchen-research
+4. Personal Blog: alexchen-security.blogspot.com
+5. LinkedIn: linkedin.com/in/alexchen-cybersec
+
+Known Information:
+- He always uses his cat's name as part of his passwords
+- His favorite number is 42
+- He published a research paper in 2020 about "Web Vulnerabilities"
+
+Your Mission:
+Find the secret code he hidden across his digital presence.
+
+Investigation Steps:
+1. Check his GitHub repositories for any interesting commits or README files
+2. Look at his blog posts from 2019-2020 for hidden messages
+3. Analyze his Twitter posts for patterns or coded messages
+4. Check if any of his online profiles contain unusual information
+
+Flag Format: Technovaganzactf{found_secret}
+
+Note: This is a simulated investigation. The "secret" is hidden in the way you interpret these clues.
+The actual flag is derived from combining: his cat's name + favorite number + research topic.
+
+Example: If cat name is "whiskers", favorite number "42", research "webvuln"
+Then flag would be: Technovaganzactf{whiskers42webvuln}

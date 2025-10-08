@@ -15,24 +15,26 @@
                         <strong>Category:</strong> {{ challenge.category }}
                     </div>
                     <div class="col-md-6">
-                        <strong>Base Points:</strong> {{ challenge.points }}
+                        <strong>Difficulty:</strong> 
+                        {% if challenge.category in ['Web', 'Crypto'] %}Beginner{% endif %}
+                        {% if challenge.category in ['Reverse', 'Forensics'] %}Intermediate{% endif %}
+                        {% if challenge.category in ['Stegano', 'Osint'] %}Advanced{% endif %}
                     </div>
                 </div>
 
-                <!-- Points Information -->
+                <!-- Solving Information -->
                 <div class="alert alert-warning">
-                    <strong>🎯 Points System:</strong><br>
+                    <strong>🏆 Challenge Status:</strong><br>
                     • Already solved by: <strong>{{ solved_count }} teams</strong><br>
-                    • Your potential points: <strong>{{ potential_points }}</strong><br>
                     <small>
                         {% if solved_count == 0 %}
-                        🥇 Be the first solver for {{ challenge.points }} points!
+                        🥇 Be the first solver!
                         {% elif solved_count == 1 %}
-                        🥈 Second solver gets {{ (challenge.points * 0.9)|int }} points
+                        🥈 Be the second solver!
                         {% elif solved_count == 2 %}
-                        🥉 Third solver gets {{ (challenge.points * 0.8)|int }} points
+                        🥉 Be the third solver!
                         {% else %}
-                        🏅 Next solver gets {{ max((challenge.points * 0.5)|int, 50) }} points
+                        🏅 Join the solvers!
                         {% endif %}
                     </small>
                 </div>
@@ -73,9 +75,12 @@
                     <form id="flag-form" class="mt-2">
                         <div class="input-group">
                             <input type="text" class="form-control" id="flag-input" 
-                                   placeholder="Enter flag (e.g., web_basic_2024)" required>
+                                   placeholder="Enter flag (e.g., Technovaganzactf{example_flag})" required>
                             <button type="submit" class="btn btn-primary">Submit Flag</button>
                         </div>
+                        <small class="form-text text-muted">
+                            Flag format: Technovaganzactf{...}
+                        </small>
                     </form>
                 </div>
 

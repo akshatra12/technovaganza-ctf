@@ -1,0 +1,36 @@
+🖼️ Steganography Challenge
+
+I've hidden a secret message in an image using steganography techniques.
+
+Since I can't provide the actual image file, here's what you need to know:
+
+Image Properties:
+- Format: PNG
+- Size: 800x600 pixels
+- Contains: A beautiful landscape photo
+
+Steganography Method:
+I used the LSB (Least Significant Bit) technique to hide the message in the RGB values.
+
+The hidden message follows this pattern:
+- Every 10th pixel contains 1 bit of the message
+- Message is encoded in ASCII
+- Starts with "SECRET:" and ends with "END"
+
+To solve this challenge conceptually:
+1. Understand how LSB steganography works
+2. Extract the LSBs from every 10th pixel
+3. Convert the binary to ASCII text
+4. The flag is the hidden message
+
+Actual Flag:
+Since you can't extract from a real image, the flag represents what you would find:
+Technovaganzactf{lsb_steganography_master}
+
+Learning Objective:
+This teaches you about LSB steganography. In a real scenario, you would use tools like:
+- Stegsolve
+- Zsteg
+- Python PIL library
+
+Remember: In real CTFs, you would get an actual image file to analyze!
